@@ -37,7 +37,7 @@ public final class BatteryIslandManager: NSObject {
         do {
             _ = try Activity<BatteryActivityAttributes>.request(
                 attributes: attributes,
-                content: ActivityContent(state: initialState, staleDate: nil),
+                contentState: initialState,
                 pushType: nil
             )
             NSLog("[BatteryIsland] Live Activity started")
@@ -49,7 +49,7 @@ public final class BatteryIslandManager: NSObject {
             let newState = makeContentState()
             for activity in Activity<BatteryActivityAttributes>.activities {
                 Task {
-                    await activity.update(ActivityContent(state: newState, staleDate: nil))
+                    await activity.update(using: newState)
                 }
             }
         }
@@ -64,7 +64,7 @@ public final class BatteryIslandManager: NSObject {
         timer = nil
         for activity in Activity<BatteryActivityAttributes>.activities {
             Task {
-                await activity.end(nil, dismissalPolicy: .immediate)
+                await activity.end(using: nil, dismissalPolicy: .immediate)
             }
         }
     }
