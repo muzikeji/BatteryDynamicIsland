@@ -1,8 +1,7 @@
 #import "BatteryIslandPrefsRootListController.h"
 
-// 与 tweak 侧一致的偏好设置 domain 与 key
+// 与 tweak 侧一致的偏好设置 domain
 static NSString *const kPreferencesAppID = @"com.muzikeji.batteryisland";
-static NSString *const kThresholdKey = @"temperature_threshold";
 
 @interface PSSpecifier : NSObject
 - (id)propertyForKey:(NSString *)key;
