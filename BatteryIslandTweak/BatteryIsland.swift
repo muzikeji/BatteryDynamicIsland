@@ -1,7 +1,13 @@
 import ActivityKit
 import Foundation
-import IOKit.ps
 import UIKit
+
+// 从 ObjC 侧（TemperatureReader.m）导入温度读取函数，避免在 iOS SDK 中引入不存在的 IOKit.ps 模块。
+@_silgen_name("BI_batteryTemperature")
+private func BI_batteryTemperature() -> Double
+
+@_silgen_name("BI_isCharging")
+private func BI_isCharging() -> Int32
 
 /// 灵动岛 Live Activity 属性。
 /// 注意：类型名与字段必须和配套宿主 App 的 Widget 扩展中的定义完全一致，
@@ -65,34 +71,8 @@ public final class BatteryIslandManager: NSObject {
 
     private static func makeContentState() -> BatteryActivityAttributes.ContentState {
         BatteryActivityAttributes.ContentState(
-            temperature: readBatteryTemperature(),
-            isCharging: UIDevice.current.batteryState == .charging
-                || UIDevice.current.batteryState == .full
+            temperature: BI_batteryTemperature(),
+            isCharging: BI_isCharging() != 0
         )
-    }
-
-    /// 通过 IOKit 私有 API 读取真实电池温度（仅越狱环境可用）。
-    /// 单位兼容处理：部分设备返回摄氏度，部分返回摄氏度 * 100。
-    private static func readBatteryTemperature() -> Double {
-        guard let blob = IOPSCopyPowerSourcesInfo() else { return -1 }
-        defer { CFRelease(blob) }
-        guard let sources = IOPSCopyPowerSourcesList(blob) else { return -1 }
-        defer { CFRelease(sources) }
-
-        let key = "Temperature" as CFString
-        let count = CFArrayGetCount(sources)
-        for index in 0..<count {
-            let source = CFArrayGetValueAtIndex(sources, index)
-            guard let description = IOPSGetPowerSourceDescription(blob, source) else { continue }
-            guard let raw = CFDictionaryGetValue(description, Unmanaged.passUnretained(key).toOpaque()) else {
-                continue
-            }
-            let number = unsafeBitCast(raw, to: CFNumber.self)
-            var value: Int = 0
-            guard CFNumberGetValue(number, .intType, &value) else { continue }
-            let doubleValue = Double(value)
-            return doubleValue > 100 ? doubleValue / 100.0 : doubleValue
-        }
-        return -1
     }
 }

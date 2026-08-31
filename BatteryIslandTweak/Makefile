@@ -11,7 +11,7 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = BatteryIsland
 
-BatteryIsland_FILES = Tweak.xm BatteryIsland.swift
+BatteryIsland_FILES = Tweak.xm BatteryIsland.swift TemperatureReader.m
 BatteryIsland_CFLAGS = -fobjc-arc
 BatteryIsland_FRAMEWORKS = UIKit IOKit ActivityKit
 
