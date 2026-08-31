@@ -28,6 +28,9 @@ jobs:
             git clone --recursive https://github.com/theos/theos.git "$HOME/theos"
           fi
 
+      - name: Install ldid
+        run: brew install ldid
+
       - name: Link iOS SDK
         run: |
           mkdir -p "$HOME/theos/sdks"
