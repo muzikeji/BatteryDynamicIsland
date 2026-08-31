@@ -8,9 +8,9 @@ struct BatteryLiveActivityView: View {
     let context: ActivityViewContext<BatteryActivityAttributes>
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 12) {
             Image(systemName: "thermometer.medium")
-                .font(.system(size: 28, weight: .medium))
+                .font(.system(size: 30, weight: .medium))
                 .foregroundColor(.orange)
 
             VStack(alignment: .leading, spacing: 2) {
@@ -18,19 +18,17 @@ struct BatteryLiveActivityView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Text(temperatureText)
-                    .font(.system(.title3, design: .rounded).monospacedDigit())
+                    .font(.system(.title2, design: .rounded).monospacedDigit())
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
             }
 
             Spacer()
 
-            HStack(spacing: 4) {
-                Image(systemName: context.state.isCharging ? "battery.100percent.bolt" : "battery.75percent")
-                Text(context.state.isCharging ? "充电中" : "放电中")
-            }
-            .font(.caption)
-            .foregroundColor(.secondary)
+            Label(context.state.isCharging ? "充电中" : "放电中",
+                  systemImage: context.state.isCharging ? "battery.100percent.bolt" : "battery.75percent")
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
         .padding()
     }
@@ -41,6 +39,7 @@ struct BatteryLiveActivityView: View {
 }
 
 /// 灵动岛 Live Activity Widget 注册入口。
+/// 布局仿 Apple Music：展开态左右两侧对称（左侧温度图标、右侧实时温度），紧凑态左右各占一侧。
 struct BatteryLiveActivity: Widget {
 
     var body: some WidgetConfiguration {
@@ -49,35 +48,23 @@ struct BatteryLiveActivity: Widget {
                 .activityBackgroundTint(.black.opacity(0.1))
         } dynamicIsland: { context in
             DynamicIsland {
-                // 展开态 - 左上
+                // 展开态 - 左侧：温度图标
                 DynamicIslandExpandedRegion(.leading) {
                     Image(systemName: "thermometer.medium")
-                        .font(.title2)
+                        .font(.system(size: 34, weight: .semibold))
                         .foregroundColor(.orange)
                 }
-                // 展开态 - 右上
+                // 展开态 - 右侧：实时温度 + 充电状态（两行，仿音乐 App 标题/副标题）
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text("电池温度")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                // 展开态 - 居中
-                DynamicIslandExpandedRegion(.center) {
-                    Text(temperatureText(context))
-                        .font(.system(.title3, design: .rounded).monospacedDigit())
-                        .fontWeight(.semibold)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
-                // 展开态 - 底部
-                DynamicIslandExpandedRegion(.bottom) {
-                    HStack {
-                        Label("温度", systemImage: "thermometer.medium")
-                            .font(.caption)
-                            .foregroundColor(.orange)
-                        Spacer()
+                    VStack(alignment: .trailing, spacing: 1) {
+                        Text(temperatureText(context))
+                            .font(.system(.title3, design: .rounded).monospacedDigit())
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                         Text(context.state.isCharging ? "充电中" : "放电中")
-                            .font(.caption)
+                            .font(.caption2)
                             .foregroundColor(.secondary)
                     }
                 }
@@ -88,7 +75,7 @@ struct BatteryLiveActivity: Widget {
             } compactTrailing: {
                 // 紧凑态右侧：实时温度
                 Text(temperatureText(context))
-                    .font(.system(.caption2, design: .rounded).monospacedDigit())
+                    .font(.system(.caption, design: .rounded).monospacedDigit())
                     .fontWeight(.semibold)
             } minimal: {
                 Image(systemName: "thermometer.medium")

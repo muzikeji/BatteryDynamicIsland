@@ -9,6 +9,8 @@ export THEOS_PACKAGE_SCHEME ?= rootless
 
 include $(THEOS)/makefiles/common.mk
 
+SUBPROJECTS += prefs
+
 TWEAK_NAME = BatteryIsland
 
 BatteryIsland_FILES = Tweak.xm BatteryIsland.swift TemperatureReader.m

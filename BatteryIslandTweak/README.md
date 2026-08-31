@@ -13,8 +13,9 @@
 
 关键点：
 
-- SpringBoard 默认 `Info.plist` 不含 `NSSupportsLiveActivities`，本 tweak 通过 hook `NSBundle` 的 `objectForInfoDictionaryKey:` 在运行时让 ActivityKit 认为当前进程支持 Live Activities（rootless 越狱下系统卷只读，runtime hook 比改 plist 更可靠）。
+- SpringBoard 默认 `Info.plist` 不含 `NSSupportsLiveActivities`，本 tweak 在 SpringBoard 启动后一次性通过 `object_setIvar` 修改主 bundle 的 `_infoDictionary` 注入该 key（rootless 越狱下系统卷只读，runtime 注入比改 plist 更可靠）。
 - `BatteryActivityAttributes` 的类型名与 `ContentState` 字段（`temperature`、`isCharging`）必须与宿主 App 的 Widget 扩展中的定义**完全一致**，否则系统无法匹配 UI 模板。
+- 灵动岛展开态采用「左侧温度图标 + 右侧实时温度」两侧布局，仿 Apple Music 的左右对称样式。
 
 ## 目录结构
 
@@ -23,8 +24,9 @@ BatteryIslandTweak/
 ├── control                  # deb 包元信息
 ├── Makefile                 # Theos 构建脚本
 ├── BatteryIsland.plist      # 注入目标过滤（com.apple.springboard）
-├── Tweak.xm                 # Logos 源码：hook NSBundle / SpringBoard
-├── BatteryIsland.swift      # Swift：ActivityKit 生命周期 + IOKit 温度读取
+├── Tweak.xm                 # Logos 源码：注入 NSSupportsLiveActivities + 延迟启动
+├── BatteryIsland.swift      # Swift：ActivityKit 生命周期 + 温度阈值 + IOKit 温度读取
+├── prefs/                   # 设置项（温度阈值），PreferenceBundle 子项目
 └── layout/DEBIAN/postinst   # rootful 兜底：写入 NSSupportsLiveActivities
 ```
 
@@ -55,6 +57,14 @@ ssh root@<设备IP> dpkg -i /tmp/*.deb
 ```
 
 或把 deb 放入 Sileo / Zebra 直接安装。安装后重启 SpringBoard（respring）即可看到灵动岛效果。
+
+## 设置
+
+安装后可在「设置 → BatteryIsland」中调整：
+
+- **电池温度达到多少度以上展示**（默认 35°C，范围 20–55°C）：只有电池温度达到该阈值时才在灵动岛展示，低于阈值自动隐藏。
+
+设置改动会即时生效（tweak 每 5 秒重新读取阈值）。
 
 ## 温度单位兼容
 

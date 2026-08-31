@@ -6,4 +6,4 @@ Description: 在灵动岛显示电池实时温度的越狱插件，左侧温度�
 Maintainer: muzikeji
 Author: muzikeji
 Section: Tweaks
-Depends: mobilesubstrate, firmware (>= 16.1)
+Depends: mobilesubstrate, firmware (>= 16.1), preferenceloader
