@@ -1,0 +1,18 @@
+#!/bin/bash
+# BatteryIsland 安装脚本
+#
+# 说明：灵动岛由注入 SpringBoard 的 tweak 通过 ActivityKit 发起，
+# 主要依赖 tweak 内对 NSBundle 的 runtime hook（rootless 兼容）。
+# 下面针对 rootful 越狱环境额外把 NSSupportsLiveActivities 写入 SpringBoard 的 Info.plist 作为兜底。
+
+for PLIST in \
+  "/System/Library/CoreServices/SpringBoard.app/Info.plist" \
+  "/Applications/SpringBoard.app/Info.plist"; do
+  if [ -f "$PLIST" ] && [ -w "$PLIST" ] 2>/dev/null; then
+    /usr/libexec/PlistBuddy -c "Delete :NSSupportsLiveActivities" "$PLIST" 2>/dev/null || true
+    /usr/libexec/PlistBuddy -c "Add :NSSupportsLiveActivities bool true" "$PLIST" 2>/dev/null || true
+    echo "[BatteryIsland] patched $PLIST"
+  fi
+done
+
+exit 0

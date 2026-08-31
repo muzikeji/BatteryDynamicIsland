@@ -22,7 +22,7 @@ final class BatteryMonitor {
     func start() {
         guard currentActivity == nil else { return }
 
-        let attributes = BatteryActivityAttributes(deviceName: UIDevice.current.name)
+        let attributes = BatteryActivityAttributes()
         let initialState = makeContentState()
 
         do {
@@ -66,8 +66,7 @@ final class BatteryMonitor {
 
     private func makeContentState() -> BatteryActivityAttributes.ContentState {
         BatteryActivityAttributes.ContentState(
-            batteryLevel: provider.batteryLevel,
-            batteryTemperature: provider.batteryTemperature,
+            temperature: provider.temperature,
             isCharging: provider.isCharging
         )
     }

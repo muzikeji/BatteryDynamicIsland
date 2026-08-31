@@ -46,7 +46,7 @@ struct ContentView: View {
             .padding(.bottom, 32)
         }
         .onReceive(timer) { _ in
-            currentTemperature = SimulatedTemperatureProvider().batteryTemperature
+            currentTemperature = SimulatedTemperatureProvider().temperature
             isActive = BatteryMonitor.shared.isActive
         }
     }

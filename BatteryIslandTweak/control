@@ -1,0 +1,9 @@
+Package: com.muzikeji.batteryisland
+Name: Battery Island（灵动岛电池温度）
+Version: 0.0.1
+Architecture: iphoneos-arm64
+Description: 在灵动岛显示电池实时温度的越狱插件，左侧温度图标、右侧实时温度
+Maintainer: muzikeji
+Author: muzikeji
+Section: Tweaks
+Depends: mobilesubstrate, firmware (>= 16.1)

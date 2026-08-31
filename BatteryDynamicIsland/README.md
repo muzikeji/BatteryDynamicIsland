@@ -1,13 +1,15 @@
 # BatteryDynamicIsland（灵动岛电池温度展示）
 
-一个基于 iOS 官方 **ActivityKit / WidgetKit**（灵动岛 Live Activity）的示例工程：左侧显示温度图标，右侧显示实时电池温度。
+一个基于 iOS 官方 **ActivityKit / WidgetKit**（灵动岛 Live Activity）的工程：左侧显示温度图标，右侧显示实时电池温度。
+
+> 本工程同时是越狱插件的「UI 模板提供者」。真正的越狱方案见 `../BatteryIslandTweak`：tweak 注入 SpringBoard 读取真实电池温度（IOKit 私有 API）并刷新灵动岛，本工程的 Widget 扩展负责渲染灵动岛 UI。
 
 ## 功能
 
 - 通过 `ActivityKit` 启动 / 更新 / 结束灵动岛活动
 - 灵动岛紧凑态：左侧温度图标（`thermometer.medium`），右侧实时温度
-- 灵动岛展开态：展示图标、温度、电量、充电状态
-- 锁屏横幅（Live Activity 卡片）同样展示温度与电量
+- 灵动岛展开态：展示图标、温度、充电状态
+- 锁屏横幅（Live Activity 卡片）同样展示温度与充电状态
 - 主 App 提供「启动 / 结束」按钮，每 5 秒自动刷新温度
 
 ## 系统要求

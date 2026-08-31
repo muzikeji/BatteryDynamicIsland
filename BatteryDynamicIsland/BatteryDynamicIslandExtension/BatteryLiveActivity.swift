@@ -27,7 +27,7 @@ struct BatteryLiveActivityView: View {
 
             HStack(spacing: 4) {
                 Image(systemName: context.state.isCharging ? "battery.100percent.bolt" : "battery.75percent")
-                Text(String(format: "%.0f%%", context.state.batteryLevel * 100))
+                Text(context.state.isCharging ? "充电中" : "放电中")
             }
             .font(.caption)
             .foregroundColor(.secondary)
@@ -36,7 +36,7 @@ struct BatteryLiveActivityView: View {
     }
 
     private var temperatureText: String {
-        String(format: "%.1f°C", context.state.batteryTemperature)
+        String(format: "%.1f°C", context.state.temperature)
     }
 }
 
@@ -76,7 +76,7 @@ struct BatteryLiveActivity: Widget {
                             .font(.caption)
                             .foregroundColor(.orange)
                         Spacer()
-                        Text(String(format: "电量 %.0f%%", context.state.batteryLevel * 100))
+                        Text(context.state.isCharging ? "充电中" : "放电中")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -98,6 +98,6 @@ struct BatteryLiveActivity: Widget {
     }
 
     private func temperatureText(_ context: ActivityViewContext<BatteryActivityAttributes>) -> String {
-        String(format: "%.1f°C", context.state.batteryTemperature)
+        String(format: "%.1f°C", context.state.temperature)
     }
 }
