@@ -1,0 +1,72 @@
+name: Build Tweaks
+
+on:
+  push:
+    paths:
+      - 'BatteryIslandTweak/**'
+      - '.github/workflows/build-tweaks.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        scheme:
+          - rootless
+          - roothide
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Theos
+        run: |
+          if [ "${{ matrix.scheme }}" = "roothide" ]; then
+            git clone --recursive https://github.com/roothide/theos.git "$HOME/theos"
+          else
+            git clone --recursive https://github.com/theos/theos.git "$HOME/theos"
+          fi
+
+      - name: Link iOS SDK
+        run: |
+          mkdir -p "$HOME/theos/sdks"
+          SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
+          SDK_VER="$(xcrun --sdk iphoneos --show-sdk-version)"
+          ln -s "$SDK_PATH" "$HOME/theos/sdks/iPhoneOS${SDK_VER}.sdk"
+          echo "SDK: ${SDK_PATH}"
+
+      - name: Build (${{ matrix.scheme }})
+        working-directory: BatteryIslandTweak
+        run: |
+          export THEOS="$HOME/theos"
+          THEOS_PACKAGE_SCHEME=${{ matrix.scheme }} make package FINALPACKAGE=1
+
+      - name: Upload deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: BatteryIsland-${{ matrix.scheme }}
+          path: BatteryIslandTweak/packages/*.deb
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download deb artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: debs
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="tweak-$(date +%Y%m%d-%H%M%S)"
+          gh release create "$TAG" \
+            debs/**/*.deb \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "BatteryIsland 构建（rootless + roothide）" \
+            --notes "自动构建产物，包含 rootless 与 roothide 两个 deb 包。"
