@@ -22,7 +22,7 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild \
-            -project BatteryDynamicIsland.xcodeproj \
+            -project BatteryDynamicIsland/BatteryDynamicIsland.xcodeproj \
             -scheme BatteryDynamicIsland \
             -destination 'generic/platform=iOS' \
             -configuration Debug \
