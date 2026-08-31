@@ -28,7 +28,7 @@ final class BatteryMonitor {
         do {
             currentActivity = try Activity.request(
                 attributes: attributes,
-                contentState: initialState,
+                content: initialState,
                 pushType: nil
             )
             scheduleUpdates()
@@ -60,7 +60,7 @@ final class BatteryMonitor {
     /// 用最新数据更新灵动岛。
     private func refresh() {
         Task {
-            await currentActivity?.update(using: makeContentState())
+            await currentActivity?.update(makeContentState())
         }
     }
 

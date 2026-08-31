@@ -17,8 +17,7 @@ protocol BatteryTemperatureProviding {
 struct SimulatedTemperatureProvider: BatteryTemperatureProviding {
 
     var batteryLevel: Double {
-        let level = UIDevice.current.batteryLevel
-        return level >= 0 ? level : 0.75
+        Double(UIDevice.current.batteryLevel >= 0 ? UIDevice.current.batteryLevel : 0.75)
     }
 
     var isCharging: Bool {
