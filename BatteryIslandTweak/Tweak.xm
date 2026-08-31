@@ -1,28 +1,28 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 
-static Class BatteryIslandManagerClass(void) {
-    return NSClassFromString(@"BatteryIslandManager");
-}
+// object_setIvar 不参与 ARC 引用计数，需用全局强引用持有注入的字典，
+// 避免 autorelease 后悬垂指针导致 SpringBoard 崩溃。
+static NSMutableDictionary *g_injectedInfo = nil;
 
 // 一次性给 SpringBoard 主 bundle 注入 NSSupportsLiveActivities，
 // 让 ActivityKit 允许在当前进程发起 Live Activity。
-// 相比 hook NSBundle 的 objectForInfoDictionaryKey:（SpringBoard 高频调用，易崩溃），
-// 这里只在启动后一次性修改 infoDictionary，风险更低。
 static void InjectLiveActivitiesSupport(void) {
     NSBundle *bundle = [NSBundle mainBundle];
     if (!bundle) {
+        NSLog(@"[BatteryIsland] inject: no main bundle");
         return;
     }
-    NSMutableDictionary *info = [NSMutableDictionary dictionaryWithDictionary:bundle.infoDictionary];
-    info[@"NSSupportsLiveActivities"] = @YES;
+
+    g_injectedInfo = [bundle.infoDictionary mutableCopy];
+    g_injectedInfo[@"NSSupportsLiveActivities"] = @YES;
 
     Ivar ivar = class_getInstanceVariable([NSBundle class], "_infoDictionary");
     if (ivar) {
-        object_setIvar(bundle, ivar, info);
-        NSLog(@"[BatteryIsland] injected NSSupportsLiveActivities");
+        object_setIvar(bundle, ivar, g_injectedInfo);
+        NSLog(@"[BatteryIsland] inject: NSSupportsLiveActivities injected");
     } else {
-        NSLog(@"[BatteryIsland] warn: _infoDictionary ivar not found");
+        NSLog(@"[BatteryIsland] inject: _infoDictionary ivar not found (skipped)");
     }
 }
 
@@ -30,16 +30,22 @@ static void InjectLiveActivitiesSupport(void) {
 
 - (void)applicationDidFinishLaunching:(id)application {
     %orig;
+    NSLog(@"[BatteryIsland] SpringBoard did finish launching");
 
     InjectLiveActivitiesSupport();
 
     // 延迟启动，避免 SpringBoard 启动早期时序问题
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
                    dispatch_get_main_queue(), ^{
-        Class manager = BatteryIslandManagerClass();
+        NSLog(@"[BatteryIsland] delayed start begin");
+        Class manager = NSClassFromString(@"BatteryIslandManager");
         if (manager && [manager respondsToSelector:@selector(start)]) {
             [manager performSelector:@selector(start)];
+            NSLog(@"[BatteryIsland] manager started");
+        } else {
+            NSLog(@"[BatteryIsland] manager class not found or no start selector");
         }
+        NSLog(@"[BatteryIsland] delayed start end");
     });
 }
 

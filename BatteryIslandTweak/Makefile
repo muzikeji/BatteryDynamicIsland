@@ -9,8 +9,6 @@ export THEOS_PACKAGE_SCHEME ?= rootless
 
 include $(THEOS)/makefiles/common.mk
 
-SUBPROJECTS += prefs
-
 TWEAK_NAME = BatteryIsland
 
 BatteryIsland_FILES = Tweak.xm BatteryIsland.swift TemperatureReader.m
@@ -18,3 +16,6 @@ BatteryIsland_CFLAGS = -fobjc-arc
 BatteryIsland_FRAMEWORKS = UIKit IOKit ActivityKit
 
 include $(THEOS_MAKE_PATH)/tweak.mk
+
+SUBPROJECTS += prefs
+include $(THEOS_MAKE_PATH)/aggregate.mk

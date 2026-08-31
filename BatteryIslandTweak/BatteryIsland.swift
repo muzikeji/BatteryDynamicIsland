@@ -57,6 +57,9 @@ public final class BatteryIslandManager: NSObject {
         let threshold = threshold()
         let activities = Activity<BatteryActivityAttributes>.activities
 
+        NSLog("[BatteryIsland] evaluate temp=%.1f threshold=%.1f charging=%d activities=%ld",
+              temperature, threshold, charging ? 1 : 0, activities.count)
+
         if temperature >= threshold {
             let state = BatteryActivityAttributes.ContentState(
                 temperature: temperature,
@@ -94,7 +97,7 @@ public final class BatteryIslandManager: NSObject {
         }
     }
 
-    /// 读取用户设置的温度阈值（摄氏度），默认 35.0。
+    /// 读取用户设置的温度阈值（摄氏度），默认 20.0（几乎总是展示，便于验证）。
     private static func threshold() -> Double {
         if let value = CFPreferencesCopyAppValue(kThresholdKey, kPreferencesAppID) {
             if let number = value as? NSNumber {
@@ -104,6 +107,6 @@ public final class BatteryIslandManager: NSObject {
                 return string.doubleValue
             }
         }
-        return 35.0
+        return 20.0
     }
 }
