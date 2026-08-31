@@ -67,9 +67,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          mkdir -p dist
+          for f in debs/BatteryIsland-rootless/*.deb; do
+            cp "$f" "dist/rootless_$(basename "$f")"
+          done
+          for f in debs/BatteryIsland-roothide/*.deb; do
+            cp "$f" "dist/roothide_$(basename "$f")"
+          done
+          echo "待发布文件："
+          ls -1 dist
           TAG="tweak-$(date +%Y%m%d-%H%M%S)"
           gh release create "$TAG" \
-            debs/**/*.deb \
+            dist/*.deb \
             --repo "$GITHUB_REPOSITORY" \
             --title "BatteryIsland 构建（rootless + roothide）" \
-            --notes "自动构建产物，包含 rootless 与 roothide 两个 deb 包。"
+            --notes "自动构建产物：rootless 与 roothide 各含 arm64 / arm64e 两个 deb 包。"
