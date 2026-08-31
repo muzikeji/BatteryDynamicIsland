@@ -1,0 +1,38 @@
+name: Build iOS
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Build app (unsigned)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project BatteryDynamicIsland.xcodeproj \
+            -scheme BatteryDynamicIsland \
+            -destination 'generic/platform=iOS' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: BatteryDynamicIsland-Debug
+          path: |
+            ~/Library/Developer/Xcode/DerivedData/**/Build/Products/Debug-iphoneos/*.app
+          if-no-files-found: warn
