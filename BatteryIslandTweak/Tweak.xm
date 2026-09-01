@@ -20,7 +20,9 @@ static void InjectLiveActivitiesSupport(void) {
     Ivar ivar = class_getInstanceVariable([NSBundle class], "_infoDictionary");
     if (ivar) {
         object_setIvar(bundle, ivar, g_injectedInfo);
-        NSLog(@"[BatteryIsland] inject: NSSupportsLiveActivities injected");
+        // 读回验证注入是否生效（ActivityKit 是否真能读到该 key）
+        id check = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSSupportsLiveActivities"];
+        NSLog(@"[BatteryIsland] inject: NSSupportsLiveActivities injected, readback=%@", check);
     } else {
         NSLog(@"[BatteryIsland] inject: _infoDictionary ivar not found (skipped)");
     }
