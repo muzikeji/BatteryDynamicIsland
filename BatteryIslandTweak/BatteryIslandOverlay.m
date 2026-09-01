@@ -62,9 +62,6 @@ static const CGFloat kTopInset = 11.0;
             break;
         }
     }
-    if (!sceneWindow) {
-        sceneWindow = app.windows.firstObject;
-    }
 
     CGRect screenBounds = [UIScreen mainScreen].bounds;
     UIWindow *window;
