@@ -77,6 +77,11 @@ static const CGFloat kTopInset = 11.0;
     window.hidden = NO;
     self.window = window;
 
+    // 设置 rootViewController，保证 window 正确渲染子视图
+    UIViewController *rootVC = [[UIViewController alloc] init];
+    rootVC.view.backgroundColor = [UIColor clearColor];
+    window.rootViewController = rootVC;
+
     CGFloat width = 150.0;
     CGFloat x = (screenBounds.size.width - width) / 2.0;
 
@@ -84,7 +89,7 @@ static const CGFloat kTopInset = 11.0;
     capsule.backgroundColor = [UIColor blackColor];
     capsule.layer.cornerRadius = kCapsuleHeight / 2.0;
     capsule.clipsToBounds = YES;
-    [window addSubview:capsule];
+    [rootVC.view addSubview:capsule];
     self.capsule = capsule;
 
     UIImage *icon = [UIImage systemImageNamed:@"thermometer.medium"];
@@ -122,9 +127,14 @@ static const CGFloat kTopInset = 11.0;
     double temperature = BI_batteryTemperature();
     double threshold = [self threshold];
 
-    // 温度读取失败则隐藏，避免展示异常数据
+    // 温度读取失败：仍显示胶囊（便于区分"未显示"与"温度读不到"两种问题），内容显示占位符
     if (temperature < 0) {
-        self.window.hidden = YES;
+        self.tempLabel.text = @"--°C";
+        if (self.iconView) {
+            self.iconView.tintColor = [UIColor systemOrangeColor];
+        }
+        self.window.hidden = NO;
+        NSLog(@"[BatteryIsland] refresh: temperature read failed, showing placeholder");
         return;
     }
 
@@ -134,8 +144,10 @@ static const CGFloat kTopInset = 11.0;
             self.iconView.tintColor = [self charging] ? [UIColor systemGreenColor] : [UIColor systemOrangeColor];
         }
         self.window.hidden = NO;
+        NSLog(@"[BatteryIsland] refresh: temp=%.1f threshold=%.1f visible", temperature, threshold);
     } else {
         self.window.hidden = YES;
+        NSLog(@"[BatteryIsland] refresh: temp=%.1f threshold=%.1f hidden (below threshold)", temperature, threshold);
     }
 }
 

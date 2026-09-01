@@ -22,4 +22,11 @@
 
 %ctor {
     NSLog(@"[BatteryIsland] tweak loaded");
+    // 双保险：若注入发生在 applicationDidFinishLaunching 之后（hook 不再触发），
+    // 这里延迟 3 秒后启动 overlay，确保其必然运行。
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{
+        NSLog(@"[BatteryIsland] ctor fallback start");
+        [[BatteryIslandOverlay sharedInstance] start];
+    });
 }
